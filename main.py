@@ -73,14 +73,14 @@ def check_melon_availability(artist, title):
         return False
 
 def main():
-    print("🎵 [샤잠 Top 200 차트 수집 시작]")
+    print("Shazam Chart Collection Start")
     chart_tracks = get_shazam_korea_chart()
     
     if not chart_tracks:
-        print("❌ 차트 데이터를 가져오지 못했습니다.")
+        print("Failed to get chart data.")
         return
         
-    print(f"총 {len(chart_tracks)}곡 수집 완료. 국내 미발매 곡 대조를 시작합니다...\n")
+    print("Chart collection complete. Starting Melon cross-check...")
     
     unreleased_tracks = []
     
@@ -88,23 +88,23 @@ def main():
         is_unreleased = check_melon_availability(track['artist'], track['title'])
         
         if is_unreleased:
-            print(f"[미발매 포착!] {track['rank']}위: {track['artist']} - {track['title']}")
+            print(f"[Unreleased] {track['rank']}위: {track['artist']} - {track['title']}")
             unreleased_tracks.append(track)
         else:
-            print(f"[발매됨] {track['rank']}위: {track['artist']} - {track['title']}")
+            print(f"[Released] {track['rank']}위: {track['artist']} - {track['title']}")
             
         time.sleep(random.uniform(3.0, 5.0))
         
     today_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     
-    readme_content = f"""# 🚀 샤잠 대한민국 Top 200 미발매 발굴 리포트
+    readme_content = f"""# 샤잠 대한민국 Top 200 미발매 발굴 리포트
 
 > **마지막 업데이트:** `{today_str}` (매일 아침 자동 갱신)  
 > **총 분석 곡 수:** {len(chart_tracks)}곡 중 국내 미등록 추정 곡: **{len(unreleased_tracks)}곡**
 
 ---
 
-### 📊 실시간 미발매 발굴 목록
+### 실시간 미발매 발굴 목록
 
 | 순위 | 아티스트 | 곡명 | 바로 듣기 링크 |
 |:---:|:---|:---|:---|
@@ -112,7 +112,7 @@ def main():
 
     if unreleased_tracks:
         for t in unreleased_tracks:
-            readme_content += f"| **{t['rank']}위** | {t['artist']} | {t['title']} | [🎧 샤잠]({t['shazam_url']}) \\| [🍎 애플뮤직]({t['apple_music_url']}) |\n"
+            readme_content += f"| **{t['rank']}위** | {t['artist']} | {t['title']} | [샤잠]({t['shazam_url']}) \\| [애플뮤직]({t['apple_music_url']}) |\n"
     else:
         readme_content += "| - | - | 오늘은 새롭게 포착된 국내 미발매 곡이 없습니다. | - |\n"
 
@@ -121,7 +121,7 @@ def main():
     with open("README.md", "w", encoding="utf-8") as f:
         f.write(readme_content)
         
-    print("✅ README.md 파일 업데이트 완료!")
+    print("README.md update complete!")
 
 if __name__ == "__main__":
     main()
