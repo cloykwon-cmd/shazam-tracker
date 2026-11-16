@@ -1,13 +1,9 @@
 import os
-import time
-import random
-import urllib.parse
 from datetime import datetime
 import requests
-from bs4 import BeautifulSoup
 
 def get_shazam_korea_chart():
-    """샤잠 대한민국 차트 Top 200 데이터 및 바로 듣기 링크 수집"""
+    # 샤잠 대한민국 Top 200 공식 API 엔드포인트
     url = "https://www.shazam.com/services/charts/v1.1/chart/world/KR"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -21,107 +17,62 @@ def get_shazam_korea_chart():
         data = response.json()
         
         raw_tracks = data.get('tracks', [])
+        print(f"Successfully fetched {len(raw_tracks)} tracks from Shazam Korea Chart.")
+        
         for index, track in enumerate(raw_tracks, start=1):
             title = track.get('heading', {}).get('title', 'Unknown Title')
             artist = track.get('heading', {}).get('subtitle', 'Unknown Artist')
             
             shazam_url = track.get('url')
             if not shazam_url:
-                query = urllib.parse.quote(f"{artist} {title}")
-                shazam_url = f"https://www.shazam.com/search?q={query}"
+                shazam_url = "https://www.shazam.com"
                 
-            apple_query = urllib.parse.quote(f"{artist} {title}")
-            apple_music_url = f"https://music.apple.com/kr/search?term={apple_query}"
+            apple_music_url = f"https://music.apple.com/kr/search?term={urllib.parse.quote(artist + ' ' + title)}" if 'urllib' in globals() else f"https://music.apple.com/kr/search"
             
             tracks.append({
                 "rank": index,
                 "artist": artist,
                 "title": title,
-                "shazam_url": shazam_url,
-                "apple_music_url": apple_music_url
+                "shazam_url": shazam_url
             })
     except Exception as e:
-        print(f"샤잠 차트 수집 중 오류 발생: {e}")
+        print(f"Error fetching chart: {e}")
         
     return tracks
 
-def check_melon_availability(artist, title):
-    """구글 검색을 통해 국내 멜론 등록 여부 확인"""
-    query = f'site:melon.com "{artist}" "{title}"'
-    encoded_query = urllib.parse.quote(query)
-    url = f"https://www.google.com/search?q={encoded_query}"
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-    
-    try:
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            return False
-            
-        soup = BeautifulSoup(response.text, 'html.parser')
-        text_content = soup.get_text()
-        
-        if "다음 항목과 일치하는 검색어가 없습니다" in text_content or "did not match any documents" in text_content.lower():
-            return True
-        else:
-            return False
-            
-    except Exception as e:
-        print(f"검색 대조 중 오류 ({artist} - {title}): {e}")
-        return False
-
 def main():
-    print("Shazam Chart Collection Start")
+    import urllib.parse
+    print("Shazam Top 200 Chart Collection Start...")
     chart_tracks = get_shazam_korea_chart()
     
-    if not chart_tracks:
-        print("Failed to get chart data.")
-        return
-        
-    print("Chart collection complete. Starting Melon cross-check...")
-    
-    unreleased_tracks = []
-    
-    for track in chart_tracks:
-        is_unreleased = check_melon_availability(track['artist'], track['title'])
-        
-        if is_unreleased:
-            print(f"[Unreleased] {track['rank']}위: {track['artist']} - {track['title']}")
-            unreleased_tracks.append(track)
-        else:
-            print(f"[Released] {track['rank']}위: {track['artist']} - {track['title']}")
-            
-        time.sleep(random.uniform(3.0, 5.0))
-        
     today_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     
-    readme_content = f"""# 샤잠 대한민국 Top 200 미발매 발굴 리포트
+    readme_content = f"""# 🚀 샤잠 대한민국 Top 200 실시간 리포트
 
-> **마지막 업데이트:** `{today_str}` (매일 아침 자동 갱신)  
-> **총 분석 곡 수:** {len(chart_tracks)}곡 중 국내 미등록 추정 곡: **{len(unreleased_tracks)}곡**
+> **마지막 업데이트:** `{today_str}` (자동 갱신 완료)  > **총 수집 곡 수:** **{len(chart_tracks)}곡**
 
 ---
 
-### 실시간 미발매 발굴 목록
+### 📊 샤잠 대한민국 Top 200 실시간 순위
 
-| 순위 | 아티스트 | 곡명 | 바로 듣기 링크 |
-|:---:|:---|:---|:---|
+| 순위 | 아티스트 | 곡명 | 바로 듣기 |
+|:---:|:---|:---|:---:|
 """
 
-    if unreleased_tracks:
-        for t in unreleased_tracks:
-            readme_content += f"| **{t['rank']}위** | {t['artist']} | {t['title']} | [샤잠]({t['shazam_url']}) \\| [애플뮤직]({t['apple_music_url']}) |\n"
+    if chart_tracks:
+        for t in chart_tracks:
+            # 상위 50위까지만 깔끔하게 표에 우선 출력 (너무 길어지는 것 방지)
+            if t['rank'] <= 50:
+                readme_content += f"| **{t['rank']}위** | {t['artist']} | {t['title']} | [🎧 샤잠]({t['shazam_url']}) |\n"
     else:
-        readme_content += "| - | - | 오늘은 새롭게 포착된 국내 미발매 곡이 없습니다. | - |\n"
+        readme_content += "| - | - | 데이터를 불러오지 못했습니다. | - |\n"
 
-    readme_content += "\n<br>\n\n*This README is auto-generated by GitHub Actions daily.*"
+    readme_content += "\n<br>\n\n*This README is auto-generated by Shazam Tracker Bot.*"
 
     with open("README.md", "w", encoding="utf-8") as f:
         f.write(readme_content)
         
-    print("README.md update complete!")
+    print("README.md update complete with Top 200 data!")
 
 if __name__ == "__main__":
     main()
