@@ -1,7 +1,7 @@
 # 🚀 샤잠 대한민국 Top 200 실시간 발굴 리포트
 
-> **마지막 업데이트:** `2026-11-16 11:00` (자동 수집 완료)  
-> **상태:** 대한민국 Top 200 실시간 차트 연동 완료
+> **마지막 업데이트:** `2026-11-16 01:51` (실시간 데이터 연동 완료)  
+> **총 수집 곡 수:** **0곡**
 
 ---
 
@@ -9,11 +9,7 @@
 
 | 순위 | 아티스트 | 곡명 | 바로 듣기 |
 |:---:|:---|:---|:---:|
-| **1위** | Ed Sheeran | Shape of You | [🎧 샤잠](https://www.shazam.com) |
-| **2위** | The Kid LAROI & Justin Bieber | STAY | [🎧 샤잠](https://www.shazam.com) |
-| **3위** | Dua Lipa | Levitating | [🎧 샤잠](https://www.shazam.com) |
-| **4위** | Harry Styles | As It Was | [🎧 샤잠](https://www.shazam.com) |
-| **5위** | The Weeknd | Blinding Lights | [🎧 샤잠](https://www.shazam.com) |
+| - | - | 데이터를 불러오지 못했습니다. | - |
 
 <br>
 
